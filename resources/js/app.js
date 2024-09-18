@@ -1,20 +1,7 @@
 import "./bootstrap";
 
+import * as bootstrap from "bootstrap";
 import { createApp } from "vue/dist/vue.esm-bundler";
-
-function newAuthor() {
-    return {
-        "@type": "Person",
-        "@id": "",
-        givenName: "",
-        familyName: "",
-        email: "",
-        affiliation: {
-            "@type": "Organization",
-            "name": "",
-        },
-    };
-}
 
 function newCodemetaJson() {
     return {
@@ -32,6 +19,58 @@ function newCodemetaJson() {
         programmingLanguage: [ "" ],
         developmentStatus: "",
     };
+}
+
+function newAuthor() {
+    return {
+        "@type": "Person",
+        "@id": "",
+        givenName: "",
+        familyName: "",
+        email: "",
+        affiliation: {
+            "@type": "Organization",
+            "name": "",
+        },
+    };
+}
+
+function importCodemetaJson(obj) {
+    //TODO more validation
+    if(
+        obj["@context"] !== "https:\/\/doi.org\/10.5063\/schema\/codemeta-2.0" ||
+        obj["@type"] !== "SoftwareSourceCode" ||
+        (obj["author"] ?? null) !== null && !Array.isArray(obj["author"]) && typeof obj["author"] !== "object"
+    ) {
+        return null;
+    }
+
+    let codemetaJson = { ...newCodemetaJson(), ...obj };
+
+    if((codemetaJson.author ?? null) === null) {
+        codemetaJson.author = [];
+    } else if(!Array.isArray(codemetaJson.author) ) {
+        codemetaJson.author = [ codemetaJson.author ];
+    }
+    codemetaJson.author = codemetaJson.author
+        .map((author) => ({ ...newAuthor(), ...author }));
+    if(codemetaJson.author.length === 0) {
+        codemetaJson.author.push(newAuthor());
+    }
+
+    console.log(codemetaJson);
+    [ "license", "keywords", "programmingLanguage" ].forEach((key) => {
+        if((codemetaJson[key] ?? null) === null) {
+            codemetaJson[key] = [];
+        } else if(!Array.isArray(codemetaJson[key])) {
+            codemetaJson[key] = [ codemetaJson[key] ];
+        }
+        if(codemetaJson[key].length === 0) {
+            codemetaJson[key].push("");
+        }
+    });
+
+    return codemetaJson;
 }
 
 function cleanUpCodemetaJson(obj, inner) {
@@ -86,19 +125,18 @@ const SwhDepositForm = {
     ],
 
     data() {
-        if(this.initialSwhId !== null) {
-            return {
-                type: "metadata",
-                swhId: this.initialSwhId,
-                codemetaJson: newCodemetaJson(),
-            };
-        } else {
-            return {
-                type: "archive",
-                swhId: "",
-                codemetaJson: newCodemetaJson(),
-            };
-        }
+        return {
+            type: this.initialSwhId !== null ? "metadata" : "archive",
+            swhId: this.initialSwhId ?? "",
+            codemetaJson: newCodemetaJson(),
+
+            codemetaJsonModal: null,
+            codemetaJsonInput: "",
+        };
+    },
+
+    mounted() {
+        this.codemetaJsonModal = new bootstrap.Modal('#importCodemetaJsonModal');
     },
 
     methods: {
@@ -132,6 +170,50 @@ const SwhDepositForm = {
 
         removeProgrammingLanguage(index) {
             this.codemetaJson.programmingLanguage.splice(index, 1);
+        },
+
+        async dropCodemetaJson(event) {
+            if(event.dataTransfer.files.length > 0) {
+                this.codemetaJsonInput = await event.dataTransfer.files[0].text();
+            }
+        },
+
+        uploadCodemetaJson() {
+            var element = document.createElement("input");
+            element.setAttribute("type", "file");
+            element.style.display = "none";
+            element.addEventListener("change", async (event) => {
+                if(element.files.length > 0) {
+                    this.codemetaJsonInput = await element.files[0].text();
+                }
+            });
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        },
+
+        importCodemetaJson() {
+            let obj;
+            try {
+                obj = JSON.parse(this.codemetaJsonInput);
+            } catch(ex) {
+                alert("Invalid JSON");
+                return;
+            }
+
+            if(Array.isArray(obj) || typeof obj !== 'object') {
+                alert("JSON is not an object");
+                return;
+            }
+
+            let codemetaJson = importCodemetaJson(obj);
+            if(codemetaJson === null) {
+                alert("JSON is not a Codemeta-JSON object");
+                return;
+            }
+
+            this.codemetaJson = codemetaJson;
+            this.codemetaJsonModal.hide();
         },
     },
 
@@ -177,7 +259,12 @@ const SwhDepositForm = {
                 </div>
             </div>
 
-            <h3 class="mb-3">Metadata</h3>
+            <div class="d-flex align-items-center mb-3">
+                <h3 class="flex-grow-1 m-0">Metadata</h3>
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#importCodemetaJsonModal" @click="codemetaJsonInput=''">
+                    <i class="bi bi-upload"></i> Import Codemeta-JSON
+                </button>
+            </div>
 
             <div class="mb-3 p-3 border">
                 <div class="row mb-3">
@@ -399,6 +486,29 @@ const SwhDepositForm = {
                 <button class="btn btn-primary" type="submit">
                     Submit
                 </button>
+            </div>
+
+            <div class="modal fade" id="importCodemetaJsonModal" tabindex="-1" aria-labelledby="importCodemetaJsonModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" @drop.prevent="dropCodemetaJson" @dragover.prevent="">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="importCodemetaJsonModalLabel">Import Codemeta-JSON</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <textarea class="form-control mb-3" rows="8" placeholder="Codemeta-JSON" v-model="codemetaJsonInput"></textarea>
+                            <p class="text-center mb-0">
+                                <button type="button" class="btn btn-primary" @click="uploadCodemetaJson">
+                                    <i class="bi bi-upload"></i> Import from File
+                                </button>
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" @click="importCodemetaJson">Import</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     `,

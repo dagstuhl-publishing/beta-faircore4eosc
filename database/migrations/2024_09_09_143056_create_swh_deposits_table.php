@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string("originSwhId")->nullable(true);
             $table->json("codemetaJson")->nullable(false);
 
-            $table->unsignedSmallInt("latestResponseStatus")->nullable(true);
+            $table->unsignedSmallInteger("latestResponseStatus")->nullable(true);
             $table->text("latestResponseBody")->nullable(true);
             $table->unsignedBigInteger("depositId")->nullable(true);
             $table->string("depositStatus")->nullable(true);

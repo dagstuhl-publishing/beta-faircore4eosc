@@ -267,16 +267,16 @@
         },
         {
             "name": "dagstuhl/swh-deposit-client",
-            "version": "0.2.0",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dagstuhl-publishing/swh-deposit-client.git",
-                "reference": "6b9d146863a78578ad243edac92e184c9a275e99"
+                "reference": "82625c08d614224624afefce6ee9b2b138cbc464"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dagstuhl-publishing/swh-deposit-client/zipball/6b9d146863a78578ad243edac92e184c9a275e99",
-                "reference": "6b9d146863a78578ad243edac92e184c9a275e99",
+                "url": "https://api.github.com/repos/dagstuhl-publishing/swh-deposit-client/zipball/82625c08d614224624afefce6ee9b2b138cbc464",
+                "reference": "82625c08d614224624afefce6ee9b2b138cbc464",
                 "shasum": ""
             },
             "require": {
@@ -307,10 +307,10 @@
                 "software archiving"
             ],
             "support": {
-                "source": "https://github.com/dagstuhl-publishing/swh-deposit-client/tree/0.2.0",
+                "source": "https://github.com/dagstuhl-publishing/swh-deposit-client/tree/0.2.1",
                 "issues": "https://github.com/dagstuhl-publishing/swh-deposit-client/issues"
             },
-            "time": "2024-09-17T15:17:33+00:00"
+            "time": "2024-09-18T15:00:01+00:00"
         },
         {
             "name": "dflydev/dot-access-data",

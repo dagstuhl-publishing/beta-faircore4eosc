@@ -51,29 +51,25 @@
             </span>
         </p>
 
-        <p class="mb-0">
-            @if($deposit->archivePath !== null)
-                <a class="btn btn-primary" href="{{ asset("storage/deposits/{$deposit->archivePath}") }}" download="{{ $deposit->archiveFilename }}">
-                    <i class="bi bi-download"></i> Download
-                </a>
-            @endif
-
-            @if($deposit->depositSwhId !== null)
-                <a class="btn btn-primary @if($deposit->depositSwhIdContext === null) disabled @endif" href="{{ $deposit->getBrowseUrl() }}">
-                    <i class="bi bi-box-arrow-up-right"></i> Browse Archive
-                </a>
-            @endif
-
-            <a class="btn btn-primary" href="#">
-                <i class="bi bi-database-fill-down"></i> Export Metadata
+        @if($deposit->archivePath !== null)
+            <a class="btn btn-primary" href="{{ asset("storage/deposits/{$deposit->archivePath}") }}" download="{{ $deposit->archiveFilename }}">
+                <i class="bi bi-download"></i> Download
             </a>
+        @endif
 
-            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#statusDetailsModal"
-                @if($deposit->depositId === null) disabled @endif
-            >
-                <i class="bi bi-activity"></i> Show Status Details
-            </button>
-        </p>
+        @if($deposit->depositSwhId !== null)
+            <a class="btn btn-primary @if($deposit->depositSwhIdContext === null) disabled @endif" href="{{ $deposit->getBrowseUrl() }}">
+                <i class="bi bi-box-arrow-up-right"></i> Browse Archive
+            </a>
+        @endif
+
+        <x-export-metadata-dropdown :deposit="$deposit" text="Show Metadata" />
+
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#statusDetailsModal"
+            @if($deposit->depositId === null) disabled @endif
+        >
+            <i class="bi bi-activity"></i> Show Status Details
+        </button>
     </div>
 
     @if($deposit->depositId !== null)

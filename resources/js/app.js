@@ -410,7 +410,7 @@ const SwhDepositForm = {
                 </div>
 
                 <datalist id="licenses">
-                    <option v-for="(title, id) in licenses" :value="id" :label="id + ': ' + title"></option>
+                    <option v-for="(title, id) in licenses" :value="'https://spdx.org/licenses/' + id" :label="id + ': ' + title"></option>
                 </datalist>
 
                 <div class="row mb-3">
@@ -522,4 +522,92 @@ window.initSwhDepositForm = function(root, licenses, languages, initialSwhId) {
     });
     app.config.compilerOptions.whitespace = "preserve";
     app.mount(root);
+};
+
+const ExportMetadataModal = {
+    props: [
+        "format",
+        "data",
+    ],
+
+    data() {
+        let jsonPretty = null;
+        try {
+            JSON.parse(this.data);
+            jsonPretty = false;
+        } catch (e) {
+        }
+
+        return {
+            output: this.data,
+            jsonPretty,
+        };
+    },
+
+    methods: {
+        setJsonPretty(pretty) {
+            this.jsonPretty = pretty;
+            if(pretty) {
+                this.output = JSON.stringify(JSON.parse(this.output), null, 4);
+            } else {
+                this.output = JSON.stringify(JSON.parse(this.output));
+            }
+        },
+
+        copyToClipboard() {
+            navigator.clipboard.writeText(this.output);
+        },
+    },
+
+    template: `
+        <div class="modal fade" id="exportMetadataModal" tabindex="-1" aria-labelledby="exportMetadataModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exportMetadataModalLabel">{{ format }}</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <code><textarea class="form-control mb-3" rows="10" readonly>{{ output }}</textarea></code>
+                    </div>
+                    <div class="modal-footer">
+                        <button v-if="jsonPretty === false" type="button" class="btn btn-primary" @click="setJsonPretty(true)">
+                            Pretty-Print
+                        </button>
+                        <button v-if="jsonPretty === true" type="button" class="btn btn-primary" @click="setJsonPretty(false)">
+                            Compact
+                        </button>
+                        <button type="button" class="btn btn-primary" @click="copyToClipboard">
+                            <i class="bi bi-clipboard"></i> Copy to Clipboard
+                        </button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `,
+};
+
+window.exportMetadata = function(event) {
+    let format = event.target.dataset.format;
+    let data = event.target.dataset.data;
+
+    let root = document.createElement("div");
+    document.body.appendChild(root);
+
+    let app = createApp(ExportMetadataModal, {
+        format,
+        data,
+    });
+    app.config.compilerOptions.whitespace = "preserve";
+    app.mount(root);
+
+    let modal = root.children[0];
+    modal.addEventListener("hidden.bs.modal", event => {
+        app.unmount();
+        document.body.removeChild(root);
+    });
+    new bootstrap.Modal(modal).show();
 };

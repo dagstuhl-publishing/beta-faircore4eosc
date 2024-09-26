@@ -72,9 +72,7 @@
                         <a class="btn btn-primary @if($deposit->depositSwhIdContext === null) disabled @endif" href="{{ $deposit->getBrowseUrl() }}">
                             <i class="bi bi-box-arrow-up-right"></i> Browse
                         </a>
-                        <a class="btn btn-primary" href="#">
-                            <i class="bi bi-database-fill-down"></i> Metadata
-                        </a>
+                        <x-export-metadata-dropdown :deposit="$deposit" text="Metadata" />
                     </td>
                 </tr>
             @empty

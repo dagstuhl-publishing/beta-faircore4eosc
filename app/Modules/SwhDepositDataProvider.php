@@ -5,6 +5,7 @@ namespace App\Modules;
 use App\Models\SwhDeposit;
 use Carbon\CarbonImmutable;
 use Dagstuhl\DataCite\DataCiteDataProvider;
+use Dagstuhl\DataCite\Metadata\Affiliation;
 use Dagstuhl\DataCite\Metadata\AlternateIdentifier;
 use Dagstuhl\DataCite\Metadata\Contributor;
 use Dagstuhl\DataCite\Metadata\Creator;

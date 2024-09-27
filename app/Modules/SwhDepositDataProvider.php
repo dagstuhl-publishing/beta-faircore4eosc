@@ -3,6 +3,7 @@
 namespace App\Modules;
 
 use App\Models\SwhDeposit;
+use App\Modules\CodeMeta\CodeMetaRecord;
 use Carbon\CarbonImmutable;
 use Dagstuhl\DataCite\DataCiteDataProvider;
 use Dagstuhl\DataCite\Metadata\Affiliation;
@@ -24,12 +25,12 @@ class SwhDepositDataProvider implements DataCiteDataProvider
     const PUBLISHER = "Schloss Dagstuhl – Leibniz-Zentrum für Informatik";
 
     private SwhDeposit $swhDeposit;
-    private object $codemetaJson;
+    private CodeMetaRecord $codemetaRecord;
 
     public function __construct(SwhDeposit $swhDeposit)
     {
         $this->swhDeposit = $swhDeposit;
-        $this->codemetaJson = json_decode($swhDeposit->codemetaJson);
+        $this->codemetaRecord = $swhDeposit->getCodeMetaRecord();
     }
 
     public function getDoi(): string
@@ -52,7 +53,7 @@ class SwhDepositDataProvider implements DataCiteDataProvider
      */
     public function getTitles(): array
     {
-        return [ new Title($this->codemetaJson->name) ];
+        return [ new Title($this->codemetaRecord->name) ];
     }
 
     /**
@@ -60,27 +61,22 @@ class SwhDepositDataProvider implements DataCiteDataProvider
      */
     public function getCreators(): array
     {
-        $authors = $this->codemetaJson->author ?? [];
-        if(!is_array($authors)) {
-            $authors = [ $authors ];
-        }
-
         return array_map(
             function($author) {
                 $name = $author->name ?? "{$author->givenName} {$author->familyName}";
                 $creator = Creator::personal($name, $author->givenName, $author->familyName);
 
-                if(preg_match('/^https:\\/\\/orcid.org\\/(.*)$/', $author->{"@id"}, $matches)) {
-                    $creator->addNameIdentifier(NameIdentifier::orcid($author->{"@id"}));
+                if(preg_match('/^https:\\/\\/orcid.org\\/(.*)$/', $author->id, $matches)) {
+                    $creator->addNameIdentifier(NameIdentifier::orcid($author->id));
                 }
 
-                if(isset($author->affiliation)) {
-                    $creator->addAffiliation(new Affiliation($author->affiliation->name));
+                foreach($author->affiliations as $affiliation) {
+                    $creator->addAffiliation(new Affiliation($affiliation->name));
                 }
 
                 return $creator;
             },
-            $authors,
+            $this->codemetaRecord->authors,
         );
     }
 
@@ -97,9 +93,9 @@ class SwhDepositDataProvider implements DataCiteDataProvider
      */
     public function getDescriptions(): array
     {
-        if(isset($this->codemetaJson->description)) {
+        if($this->codemetaRecord->description !== null) {
             //TODO abstract?
-            return [ Description::abstract($this->codemetaJson->description) ];
+            return [ Description::abstract($this->codemetaRecord->description) ];
         } else {
             return [];
         }
@@ -131,8 +127,8 @@ class SwhDepositDataProvider implements DataCiteDataProvider
 
     public function getPublicationYear(): int
     {
-        if(isset($this->codemetaJson->dateCreated)) {
-            return CarbonImmutable::parse($this->codemetaJson->dateCreated)->year;
+        if($this->codemetaRecord->dateCreated !== null) {
+            return CarbonImmutable::parse($this->codemetaRecord->dateCreated)->year;
         } else {
             return $this->swhDeposit->created_at->year;
         }
@@ -143,16 +139,12 @@ class SwhDepositDataProvider implements DataCiteDataProvider
      */
     public function getSubjects(): array
     {
-        $keywords = $this->codemetaJson->keywords ?? [];
-        if(!is_array($keywords)) {
-            $keywords = [ $keywords ];
-        }
-
-        return array_map(fn($keyword) => new Subject($keyword), $keywords);
+        return array_map(fn($keyword) => new Subject($keyword), $this->codemetaRecord->keywords);
     }
 
     public function getLanguage(): string
     {
+        //TODO
         return "en";
     }
 
@@ -186,13 +178,8 @@ class SwhDepositDataProvider implements DataCiteDataProvider
      */
     public function getRightsList(): array
     {
-        $licenses = $this->codemetaJson->license ?? [];
-        if(!is_array($licenses)) {
-            $licenses = [ $licenses ];
-        }
-
         $rights = [];
-        foreach($licenses as $license) {
+        foreach($this->codemetaRecord->licenses as $license) {
             if(preg_match('/^https?:\\/\\/spdx.org\\/licenses\\/(.*)$/', $license, $matches)) {
                 $rights[] = new Rights($matches[1], $license, "en", Rights::RIGHTS_IDENTIFIER_SCHEME_SPDX, Rights::SCHEME_URI_SPDX);
             }
@@ -215,8 +202,8 @@ class SwhDepositDataProvider implements DataCiteDataProvider
     {
         $createdAt = $this->swhDeposit->created_at->format("Y-m-d");
         return [
-            Date::created($this->codemetaJson->dateCreated ?? $createdAt),
-            Date::available($this->codemetaJson->datePublished ?? $createdAt),
+            Date::created($this->codemetaRecord->dateCreated ?? $createdAt),
+            Date::available($this->codemetaRecord->datePublished ?? $createdAt),
             Date::issued($createdAt),
             Date::submitted($createdAt),
             Date::accepted($createdAt),

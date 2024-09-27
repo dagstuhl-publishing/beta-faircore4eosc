@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Modules\CodeMeta\CodeMetaRecord;
 use App\Modules\SwhDepositDataProvider;
 use App\Modules\Utils;
 use Dagstuhl\DataCite\Metadata\DataCiteRecord;
@@ -30,6 +31,11 @@ class SwhDeposit extends Model
             return "#";
         }
         return "https://webapp.staging.swh.network/{$this->depositSwhIdContext}";
+    }
+
+    public function getCodeMetaRecord(): CodeMetaRecord
+    {
+        return CodeMetaRecord::fromJson($this->codemetaJson);
     }
 
     public function getDataCiteRecord(): DataCiteRecord

@@ -21,4 +21,3 @@ Route::group([ "middleware" => ["auth"] ], function() {
         Route::post("/", [ SwhArchiveController::class, "saveNew" ])->name("swh-archives.new");
     });
 });
-

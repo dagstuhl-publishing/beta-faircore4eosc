@@ -91,6 +91,8 @@ class SwhDepositController extends Controller
 
     public function showDeposit(SwhDeposit $deposit)
     {
+        //dd(json_decode($deposit->codemetaJson));
+        //dd($deposit->getCodeMetaRecord());
         return view("pages.swh-deposits.show", [
             "deposit" => $deposit,
             "depositStatus" => $deposit->depositStatus === null ? null : SwhDepositStatus::from($deposit->depositStatus),

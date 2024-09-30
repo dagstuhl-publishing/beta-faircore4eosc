@@ -2,14 +2,16 @@
 
 namespace App\Modules\CodeMeta;
 
+use Carbon\CarbonImmutable;
+
 class CodeMetaRecord
 {
     public ?string $name = null;
     public array $authors = [];
     public ?string $description = null;
     public ?string $version = null;
-    public ?string $dateCreated = null;
-    public ?string $datePublished = null;
+    public ?CarbonImmutable $dateCreated = null;
+    public ?CarbonImmutable $datePublished = null;
     public array $licenses = [];
     public array $keywords = [];
     public array $programmingLanguages = [];
@@ -27,9 +29,14 @@ class CodeMetaRecord
         $record->name = $json->name ?? null;
         $record->description = $json->description ?? null;
         $record->version = $json->version ?? null;
-        $record->dateCreated = $json->dateCreated ?? null;
-        $record->datePublished = $json->datePublished ?? null;
         $record->developmentStatus = $json->developmentStatus ?? null;
+
+        if($json->dateCreated !== null) {
+            $record->dateCreated = CarbonImmutable::parse($json->dateCreated);
+        }
+        if($json->datePublished !== null) {
+            $record->datePublished = CarbonImmutable::parse($json->datePublished);
+        }
 
         $authors = $json->author ?? [];
         if(!is_array($authors)) {

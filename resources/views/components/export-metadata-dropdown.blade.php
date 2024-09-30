@@ -9,7 +9,7 @@
             </button>
         </li>
         <li>
-            <button class="dropdown-item" onclick="exportMetadata(event)" data-format="DataCite Record (JSON)" data-data="{{ $deposit->getDataCiteRecord()->toApiJson() }}">
+            <button class="dropdown-item" onclick="exportMetadata(event)" data-format="DataCite Record (JSON)" data-data="{{ $deposit->exportDataCiteRecord()->toApiJson() }}">
                 DataCite Record (JSON)
             </button>
         </li>

@@ -20,6 +20,16 @@ class SwhDeposit extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function getDoi(): string
+    {
+        return "10.0000/deposit-".$this->uuid;
+    }
+
+    public function getUrl(): string
+    {
+        return route("swh-deposits.show", [ "deposit" => $this ]);
+    }
+
     public function getFormattedArchiveSize(): string
     {
         return Utils::formatFileSize($this->archiveSize);
@@ -38,7 +48,7 @@ class SwhDeposit extends Model
         return CodeMetaRecord::fromJson($this->codemetaJson);
     }
 
-    public function getDataCiteRecord(): DataCiteRecord
+    public function exportDataCiteRecord(): DataCiteRecord
     {
         $dataProvider = new SwhDepositDataProvider($this);
         $dataCiteRecord = DataCiteRecord::fromDataProvider($dataProvider);

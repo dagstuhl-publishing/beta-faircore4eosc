@@ -4,7 +4,6 @@ namespace App\Modules;
 
 use App\Models\SwhDeposit;
 use App\Modules\CodeMeta\CodeMetaRecord;
-use Carbon\CarbonImmutable;
 use Dagstuhl\DataCite\DataCiteDataProvider;
 use Dagstuhl\DataCite\Metadata\Affiliation;
 use Dagstuhl\DataCite\Metadata\AlternateIdentifier;
@@ -25,22 +24,22 @@ class SwhDepositDataProvider implements DataCiteDataProvider
     const PUBLISHER = "Schloss Dagstuhl – Leibniz-Zentrum für Informatik";
 
     private SwhDeposit $swhDeposit;
-    private CodeMetaRecord $codemetaRecord;
+    private CodeMetaRecord $codeMetaRecord;
 
     public function __construct(SwhDeposit $swhDeposit)
     {
         $this->swhDeposit = $swhDeposit;
-        $this->codemetaRecord = $swhDeposit->getCodeMetaRecord();
+        $this->codeMetaRecord = $swhDeposit->getCodeMetaRecord();
     }
 
     public function getDoi(): string
     {
-        return "10.0000/deposits/".$this->swhDeposit->uuid;
+        return $this->swhDeposit->getDoi();
     }
 
     public function getUrl(): string
     {
-        return route("swh-deposits.show", [ "deposit" => $this->swhDeposit ]);
+        return $this->swhDeposit->getUrl();
     }
 
     public function getPublisher(): string
@@ -53,7 +52,7 @@ class SwhDepositDataProvider implements DataCiteDataProvider
      */
     public function getTitles(): array
     {
-        return [ new Title($this->codemetaRecord->name) ];
+        return [ new Title($this->codeMetaRecord->name) ];
     }
 
     /**
@@ -76,7 +75,7 @@ class SwhDepositDataProvider implements DataCiteDataProvider
 
                 return $creator;
             },
-            $this->codemetaRecord->authors,
+            $this->codeMetaRecord->authors,
         );
     }
 
@@ -93,9 +92,9 @@ class SwhDepositDataProvider implements DataCiteDataProvider
      */
     public function getDescriptions(): array
     {
-        if($this->codemetaRecord->description !== null) {
+        if($this->codeMetaRecord->description !== null) {
             //TODO abstract?
-            return [ Description::abstract($this->codemetaRecord->description) ];
+            return [ Description::abstract($this->codeMetaRecord->description) ];
         } else {
             return [];
         }
@@ -127,11 +126,7 @@ class SwhDepositDataProvider implements DataCiteDataProvider
 
     public function getPublicationYear(): int
     {
-        if($this->codemetaRecord->dateCreated !== null) {
-            return CarbonImmutable::parse($this->codemetaRecord->dateCreated)->year;
-        } else {
-            return $this->swhDeposit->created_at->year;
-        }
+        return ($this->codeMetaRecord->dateCreated ?? $this->swhDeposit->created_at)->year;
     }
 
     /**
@@ -139,7 +134,7 @@ class SwhDepositDataProvider implements DataCiteDataProvider
      */
     public function getSubjects(): array
     {
-        return array_map(fn($keyword) => new Subject($keyword), $this->codemetaRecord->keywords);
+        return array_map(fn($keyword) => new Subject($keyword), $this->codeMetaRecord->keywords);
     }
 
     public function getLanguage(): string
@@ -179,7 +174,7 @@ class SwhDepositDataProvider implements DataCiteDataProvider
     public function getRightsList(): array
     {
         $rights = [];
-        foreach($this->codemetaRecord->licenses as $license) {
+        foreach($this->codeMetaRecord->licenses as $license) {
             if(preg_match('/^https?:\\/\\/spdx.org\\/licenses\\/(.*)$/', $license, $matches)) {
                 $rights[] = new Rights($matches[1], $license, "en", Rights::RIGHTS_IDENTIFIER_SCHEME_SPDX, Rights::SCHEME_URI_SPDX);
             }
@@ -202,8 +197,8 @@ class SwhDepositDataProvider implements DataCiteDataProvider
     {
         $createdAt = $this->swhDeposit->created_at->format("Y-m-d");
         return [
-            Date::created($this->codemetaRecord->dateCreated ?? $createdAt),
-            Date::available($this->codemetaRecord->datePublished ?? $createdAt),
+            Date::created($this->codeMetaRecord->dateCreated ?? $createdAt),
+            Date::available($this->codeMetaRecord->datePublished ?? $createdAt),
             Date::issued($createdAt),
             Date::submitted($createdAt),
             Date::accepted($createdAt),

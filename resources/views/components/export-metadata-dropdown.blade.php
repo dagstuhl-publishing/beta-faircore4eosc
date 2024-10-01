@@ -13,5 +13,15 @@
                 DataCite Record (JSON)
             </button>
         </li>
+        <li>
+            <button class="dropdown-item" onclick="exportMetadata(event)" data-format="BibTeX Citation" data-data="{{ trim($deposit->exportBibEntry(false)->getBibTexString()) }}">
+                BibTeX Citation
+            </button>
+        </li>
+        <li>
+            <button class="dropdown-item" onclick="exportMetadata(event)" data-format="BibLaTeX Citation" data-data="{{ trim($deposit->exportBibEntry(true)->getBibTexString()) }}">
+                BibLaTeX Citation
+            </button>
+        </li>
     </ul>
 </div>

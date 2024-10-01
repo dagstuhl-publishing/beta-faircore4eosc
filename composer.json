@@ -14,6 +14,7 @@
         "php": "^8.2",
         "composer/spdx-licenses": "^1.5",
         "dagstuhl/datacite": "^2.0",
+        "dagstuhl/latex": "^2.5",
         "dagstuhl/swh-archive-client": "^1.0",
         "dagstuhl/swh-deposit-client": "^0.2",
         "laravel/framework": "^11.9",

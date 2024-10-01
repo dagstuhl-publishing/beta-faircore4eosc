@@ -31,10 +31,10 @@ class CodeMetaRecord
         $record->version = $json->version ?? null;
         $record->developmentStatus = $json->developmentStatus ?? null;
 
-        if($json->dateCreated !== null) {
+        if($json->dateCreated ?? null !== null) {
             $record->dateCreated = CarbonImmutable::parse($json->dateCreated);
         }
-        if($json->datePublished !== null) {
+        if($json->datePublished ?? null !== null) {
             $record->datePublished = CarbonImmutable::parse($json->datePublished);
         }
 

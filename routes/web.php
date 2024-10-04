@@ -5,11 +5,11 @@ use App\Http\Controllers\SwhArchiveController;
 use App\Http\Controllers\SwhDepositController;
 use Illuminate\Support\Facades\Route;
 
-Auth::routes();
+Auth::routes([ "verify" => true ]);
 
 Route::get("/", [ HomeController::class, "index" ])->name("home");
 
-Route::group([ "middleware" => ["auth"] ], function() {
+Route::group([ "middleware" => ["auth", "verified"] ], function() {
     Route::group([ "prefix" => "/deposits" ], function() {
         Route::get("/", [ SwhDepositController::class, "index" ])->name("swh-deposits.index");
         Route::get("/new", [ SwhDepositController::class, "showNew" ])->name("swh-deposits.new");

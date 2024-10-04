@@ -35,16 +35,18 @@
                         </a>
                     </li>
                     @auth
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route("swh-archives.index") }}">
-                                <i class="bi bi-archive-fill"></i> Archives
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route("swh-deposits.index") }}">
-                                <i class="bi bi-file-earmark-zip-fill"></i> Deposits
-                            </a>
-                        </li>
+                        @if (Auth::user()->hasVerifiedEmail())
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route("swh-archives.index") }}">
+                                    <i class="bi bi-archive-fill"></i> Archives
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route("swh-deposits.index") }}">
+                                    <i class="bi bi-file-earmark-zip-fill"></i> Deposits
+                                </a>
+                            </li>
+                        @endif
                     @endauth
                 </ul>
                 <ul class="navbar-nav mb-2 mb-lg-0">

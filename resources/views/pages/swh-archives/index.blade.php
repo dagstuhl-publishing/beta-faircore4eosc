@@ -1,9 +1,13 @@
 @extends("layouts.app")
 
 @section("content")
-    <h1>Archives</h1>
+    <h2>Archives</h2>
 
-    <p>TODO</p>
+    <p>
+        Here, you can request archival of existing repositories, e.g. GitHub, using the repository's URL.
+        After archival, you can visit the archived repository on Software Heritage,
+        and you can add additional metadata by creating a metadata deposit.
+    </p>
 
     <div class="mb-3">
         <form method="POST">

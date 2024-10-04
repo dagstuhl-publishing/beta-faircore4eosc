@@ -8,7 +8,12 @@
         </a>
     </div>
 
-    <p>TODO</p>
+    <p>
+        Here, you can archive projects by uploading the source code as a zip-archive and creating a deposit.
+        Deposits have associated metadata in form of Codemeta-JSON.
+        You can also create deposits referencing an existing artifact identified by its SWHID,
+        which allows you to provide additional metadata for this artifact.
+    </p>
 
     {!! $deposits->links() !!}
 
@@ -33,7 +38,7 @@
                     <td>
                         @if($deposit->archiveFilename !== null)
                             <i class="bi bi-file-earmark-zip-fill"></i>
-                            <a href="#">{{ $deposit->archiveFilename }}</a>
+                            <a href="{{ asset("storage/deposits/{$deposit->archivePath}") }}" download="{{ $deposit->archiveFilename }}">{{ $deposit->archiveFilename }}</a>
                             ({{ $deposit->getFormattedArchiveSize() }})
                         @else
                             {{ $deposit->originSwhId }}

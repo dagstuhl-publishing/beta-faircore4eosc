@@ -63,7 +63,7 @@
             </a>
         @endif
 
-        <x-export-metadata-dropdown :deposit="$deposit" text="Show Metadata" />
+        <x-export-metadata-dropdown :deposit="$deposit" text="Export Metadata" />
 
         <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#statusDetailsModal"
             @if($deposit->depositId === null) disabled @endif

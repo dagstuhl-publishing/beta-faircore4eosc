@@ -95,7 +95,6 @@ class SwhDepositController extends Controller
         //dd($deposit->getCodeMetaRecord());
         return view("pages.swh-deposits.show", [
             "deposit" => $deposit,
-            "depositStatus" => $deposit->depositStatus === null ? null : SwhDepositStatus::from($deposit->depositStatus),
             "depositResponse" => $deposit->latestResponseBody === null ? null : SwhDepositResponse::fromResponseBody($deposit->latestResponseBody),
         ]);
     }

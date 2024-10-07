@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SwhArchiveController;
 use App\Http\Controllers\SwhDepositController;
@@ -16,8 +17,15 @@ Route::group([ "middleware" => ["auth", "verified"] ], function() {
         Route::post("/new", [ SwhDepositController::class, "uploadNew" ])->name("swh-deposits.new.upload");
         Route::get("/{deposit:uuid}", [ SwhDepositController::class, "showDeposit" ])->name("swh-deposits.show");
     });
+
     Route::group([ "prefix" => "/archives" ], function() {
         Route::get("/", [ SwhArchiveController::class, "index" ])->name("swh-archives.index");
         Route::post("/", [ SwhArchiveController::class, "saveNew" ])->name("swh-archives.new");
+    });
+
+    Route::group([ "prefix" => "/account" ], function() {
+        Route::get("/", [ AccountController::class, "index" ])->name("account.index");
+        Route::post("/", [ AccountController::class, "save" ])->name("account.save");
+        Route::post("/change-password", [ AccountController::class, "changePassword" ])->name("account.change-password");
     });
 });

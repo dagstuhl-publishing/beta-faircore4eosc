@@ -68,6 +68,12 @@
 
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route("account.index") }}">
+                                        Account Settings
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="nav-item">
                                     <form method="POST" action="{{ route("logout") }}">
                                         @csrf
                                         <button class="dropdown-item" type="submit">

@@ -45,8 +45,8 @@
                         @endif
                     </td>
                     <td class="text-nowrap">
-                        <span title="{{ $deposit->depositStatus ?? "pending" }}">
-                            @switch($deposit->depositStatus)
+                        <span title="{{ $deposit->depositStatus?->value ?? "pending" }}">
+                            @switch($deposit->depositStatus?->value)
                                 @case("partial")
                                 @case("deposited")
                                 @case("verified")

@@ -22,8 +22,8 @@
 
         <p class="mb-3">
             <b>Status:</b>
-            <span title="{{ $deposit->depositStatus ?? "pending" }}">
-                @switch($deposit->depositStatus)
+            <span title="{{ $deposit->depositStatus?->value ?? "pending" }}">
+                @switch($deposit->depositStatus?->value)
                     @case("partial")
                     @case("deposited")
                     @case("verified")
@@ -89,7 +89,7 @@
                                 </tr>
                                 <tr>
                                     <td class="text-nowrap"><b>Deposit Status:</b></td>
-                                    <td class="w-100">{{ $depositStatus->value }} - {{ $depositStatus->getDescription() }}</td>
+                                    <td class="w-100">{{ $deposit->depositStatus->value }} - {{ $deposit->depositStatus->getDescription() }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-nowrap"><b>Deposit Status Detail:</b></td>

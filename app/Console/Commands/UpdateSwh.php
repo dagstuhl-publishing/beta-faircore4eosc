@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\SwhArchive;
 use App\Models\SwhDeposit;
+use App\Notifications\ArchiveFinished;
+use App\Notifications\DepositFinished;
 use Carbon\CarbonImmutable;
 use Dagstuhl\SwhArchiveClient\ApiClient\SwhWebApiClient;
 use Dagstuhl\SwhArchiveClient\Repositories\Repository;
@@ -79,12 +81,12 @@ class UpdateSwh extends Command
 
                     Log::info("{$prefix}: status: {$saveRequest->saveRequestStatus->value} / {$saveRequest->saveTaskStatus->value}");
 
-                    $archive->saveRequestStatus = $saveRequest->saveRequestStatus->value;
-                    $archive->saveTaskStatus = $saveRequest->saveTaskStatus->value;
+                    $archive->saveRequestStatus = $saveRequest->saveRequestStatus;
+                    $archive->saveTaskStatus = $saveRequest->saveTaskStatus;
                     $archive->visitStatus = $saveRequest->visitStatus;
                     $archive->swhId = $saveRequest->snapshotSwhId;
 
-                    if($archive->saveTaskStatus === SaveTaskStatus::SUCCEEDED->value) {
+                    if($archive->saveTaskStatus === SaveTaskStatus::SUCCEEDED) {
                         $snapshot = $saveRequest->getSnapshot();
                         $repoNode = new RepositoryNode($saveRequest->originUrl);
                         $context = $snapshot->getContext($repoNode);
@@ -108,6 +110,12 @@ class UpdateSwh extends Command
                     }
 
                     $archive->save();
+
+                    if($archive->finished_at !== null) {
+                        if($archive->user->notify_archives) {
+                            $archive->user->notify(new ArchiveFinished($archive));
+                        }
+                    }
 
                 } catch(Exception $ex) {
                     Log::error($ex);
@@ -181,7 +189,7 @@ class UpdateSwh extends Command
 
                     $deposit->latestResponseStatus = $res->getResponseStatus();
                     $deposit->latestResponseBody = $res->getResponseBody();
-                    $deposit->depositStatus = $status->value;
+                    $deposit->depositStatus = $status;
                     $deposit->depositSwhId = $res->getDepositSwhId();
                     $deposit->depositSwhIdContext = $res->getDepositSwhIdContext();
 
@@ -190,6 +198,12 @@ class UpdateSwh extends Command
                     }
 
                     $deposit->save();
+
+                    if($deposit->finished_at !== null) {
+                        if($deposit->user->notify_deposits) {
+                            $deposit->user->notify(new DepositFinished($deposit));
+                        }
+                    }
 
                 } catch(SwhDepositException $ex) {
                     Log::error($ex);

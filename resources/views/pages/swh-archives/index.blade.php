@@ -44,9 +44,9 @@
                     </td>
                     <td class="text-nowrap">
                         <span title="{{ $archive->saveRequestStatus ?? "pending" }} / {{ $archive->saveTaskStatus ?? "not created" }}">
-                            @switch($archive->saveRequestStatus)
+                            @switch($archive->saveRequestStatus?->value)
                                 @case("accepted")
-                                    @switch($archive->saveTaskStatus)
+                                    @switch($archive->saveTaskStatus?->value)
                                         @case("succeeded")
                                             <i class="bi bi-check-circle-fill"></i> Succeeded
                                             @break

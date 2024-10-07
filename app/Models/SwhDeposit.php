@@ -7,6 +7,7 @@ use App\Modules\SwhDepositDataProvider;
 use App\Modules\Utils;
 use Dagstuhl\DataCite\Metadata\DataCiteRecord;
 use Dagstuhl\Latex\Bibliography\BibEntry;
+use Dagstuhl\SwhDepositClient\SwhDepositStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -20,6 +21,7 @@ class SwhDeposit extends Model
     protected function casts(): array
     {
         return [
+            "depositStatus" => SwhDepositStatus::class,
             'deposited_at' => 'datetime',
             'finished_at' => 'datetime',
         ];

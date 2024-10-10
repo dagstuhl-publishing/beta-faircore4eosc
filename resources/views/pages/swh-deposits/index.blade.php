@@ -13,7 +13,10 @@
         Deposits have associated metadata in form of Codemeta-JSON.
         You can also create deposits referencing an existing artifact identified by its SWHID,
         which allows you to provide additional metadata for this artifact.
+        The depositing is realized using Dagstuhl's <a href="https://github.com/dagstuhl-publishing/swh-deposit-client">swh-deposit-client</a>.
     </p>
+
+    <x-demo-note />
 
     {!! $deposits->links() !!}
 

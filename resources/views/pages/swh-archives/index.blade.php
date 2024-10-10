@@ -7,7 +7,10 @@
         Here, you can request archival of existing repositories, e.g. GitHub, using the repository's URL.
         After archival, you can visit the archived repository on Software Heritage,
         and you can add additional metadata by creating a metadata deposit.
+        Archiving is realized using Dagstuhl's <a href="https://github.com/dagstuhl-publishing/swh-archive-client">swh-archive-client</a>.
     </p>
+
+    <x-demo-note />
 
     <div class="mb-3">
         <form method="POST">

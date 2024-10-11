@@ -131,12 +131,12 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link px-2 text-body-secondary">
+                <a href="https://submission.dagstuhl.de/imprint" class="nav-link px-2 text-body-secondary">
                     Imprint
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link px-2 text-body-secondary">
+                <a href="https://submission.dagstuhl.de/privacy" class="nav-link px-2 text-body-secondary">
                     Privacy
                 </a>
             </li>

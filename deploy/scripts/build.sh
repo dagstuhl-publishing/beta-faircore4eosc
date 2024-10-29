@@ -8,5 +8,4 @@ npm run build
 
 composer install --optimize-autoloader --no-dev
 
-./artisan storage:link
 ./artisan down

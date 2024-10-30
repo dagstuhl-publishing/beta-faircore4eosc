@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SwhArchive;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class SwhArchiveController extends Controller
 {
@@ -22,13 +23,17 @@ class SwhArchiveController extends Controller
 
     public function saveNew(Request $request)
     {
-        //TODO input validation
+        $input = Validator::make($request->all(), [
+            "originUrl" => [ "required", "url" ],
+        ])->stopOnFirstFailure()->validated();
+
+        //TODO validate url?
 
         $user = $request->user();
 
         $archive = new SwhArchive();
         $archive->user()->associate($user);
-        $archive->originUrl = $request->input("originUrl");
+        $archive->originUrl = $input["originUrl"];
         $archive->save();
 
         return redirect()->route("swh-archives.index");

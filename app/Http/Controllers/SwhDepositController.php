@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\SwhDeposit;
+use App\Modules\CodeMeta\CodeMetaRecord;
 use App\Modules\Utils;
 use Composer\Spdx\SpdxLicenses;
 use Dagstuhl\SwhDepositClient\SwhDepositResponse;
 use Dagstuhl\SwhDepositClient\SwhDepositStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class SwhDepositController extends Controller
 {
@@ -42,8 +45,6 @@ class SwhDepositController extends Controller
 
     public function uploadNew(Request $request)
     {
-        //TODO input validation
-
         $user = $request->user();
 
         $deposit = new SwhDeposit();
@@ -52,18 +53,16 @@ class SwhDepositController extends Controller
 
         switch($request->input("type")) {
         case "archive":
-            $file = $request->file("archive");
-            if($file === null) {
-                abort(400);
-            }
+            $input = Validator::make($request->all(), [
+                "archive" => [ "required", "file", "extensions:zip,tar" ],
+                "codemetaJson" => [ "required", "string", "json" ],
+            ])->stopOnFirstFailure()->validated();
 
+            $file = $input["archive"];
             $extension = $file->extension();
-            if(strtolower($extension) !== "zip" && strtolower($extension) !== "tar") {
-                abort(400);
-            }
-
             $filename = "{$deposit->uuid}.{$extension}";
             $path = substr($filename, 0, 2)."/".substr($filename, 2, 2);
+
             $storagePath = "public/deposits/{$path}";
             Storage::makeDirectory($storagePath);
             $file->storeAs($storagePath, $filename);
@@ -75,14 +74,31 @@ class SwhDepositController extends Controller
             break;
 
         case "metadata":
-            $deposit->originSwhId = $request->input("originSwhId");
+            $input = Validator::make($request->all(), [
+                "originSwhId" => [ "required", "string" ],
+                "codemetaJson" => [ "required", "string", "json" ],
+            ])->stopOnFirstFailure()->validated();
+
+            $deposit->originSwhId = $input["originSwhId"];
             break;
 
         default:
             abort(400);
         }
 
-        $deposit->codemetaJson = $request->input("codemetaJson");
+        $record = CodeMetaRecord::fromJson($input["codemetaJson"]);
+        if($record->name === null) {
+            throw ValidationException::withMessages([
+                "codemetaJson" => "Metadata must contain a name.",
+            ]);
+        }
+        if(empty($record->authors)) {
+            throw ValidationException::withMessages([
+                "codemetaJson" => "Metadata must contain at least one author.",
+            ]);
+        }
+
+        $deposit->codemetaJson = $input["codemetaJson"];
         $deposit->save();
 
         return redirect()->route("swh-deposits.show", ["deposit" => $deposit])

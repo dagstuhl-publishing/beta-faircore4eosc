@@ -4,10 +4,11 @@
     <script type="text/javascript">
         const licenses = {!! json_encode($licenses) !!};
         const languages = {!! json_encode($languages) !!};
-        const initialSwhId = {!! json_encode($swhId) !!};
+        const initialSwhId = {!! json_encode(old("originSwhId") ?? $swhId) !!};
+        const initialCodemetaJson = {!! json_encode(json_decode(old("codemetaJson"))) !!};
 
         document.addEventListener("DOMContentLoaded", function(event) {
-            initSwhDepositForm("#swhDepositForm", licenses, languages, initialSwhId);
+            initSwhDepositForm("#swhDepositForm", licenses, languages, initialSwhId, initialCodemetaJson);
         });
     </script>
 @endpush

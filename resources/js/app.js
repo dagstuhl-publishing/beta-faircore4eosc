@@ -36,13 +36,15 @@ function newAuthor() {
 }
 
 function importCodemetaJson(obj) {
-    //TODO more validation
-    if(
-        obj["@context"] !== "https:\/\/doi.org\/10.5063\/schema\/codemeta-2.0" ||
-        obj["@type"] !== "SoftwareSourceCode" ||
-        (obj["author"] ?? null) !== null && !Array.isArray(obj["author"]) && typeof obj["author"] !== "object"
-    ) {
-        return null;
+    if(obj !== null) {
+        //TODO more validation
+        if(
+            obj["@context"] !== "https:\/\/doi.org\/10.5063\/schema\/codemeta-2.0" ||
+            obj["@type"] !== "SoftwareSourceCode" ||
+            (obj["author"] ?? null) !== null && !Array.isArray(obj["author"]) && typeof obj["author"] !== "object"
+        ) {
+            return null;
+        }
     }
 
     let codemetaJson = { ...newCodemetaJson(), ...obj };
@@ -122,13 +124,14 @@ const SwhDepositForm = {
         "licenses",
         "languages",
         "initialSwhId",
+        "initialCodemetaJson",
     ],
 
     data() {
         return {
             type: this.initialSwhId !== null ? "metadata" : "archive",
             swhId: this.initialSwhId ?? "",
-            codemetaJson: newCodemetaJson(),
+            codemetaJson: importCodemetaJson(this.initialCodemetaJson ?? null),
 
             codemetaJsonModal: null,
             codemetaJsonInput: "",
@@ -514,11 +517,12 @@ const SwhDepositForm = {
     `,
 };
 
-window.initSwhDepositForm = function(root, licenses, languages, initialSwhId) {
+window.initSwhDepositForm = function(root, licenses, languages, initialSwhId, initialCodemetaJson) {
     let app = createApp(SwhDepositForm, {
         licenses,
         languages,
         initialSwhId,
+        initialCodemetaJson,
     });
     app.config.compilerOptions.whitespace = "preserve";
     app.mount(root);
